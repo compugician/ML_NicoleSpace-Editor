@@ -27,6 +27,8 @@
     var conn; //websocket connection to SPJS server
     var portName = "/dev/tty.usbmodem1421";
 
+    var isPortOpen = false;
+
   $( function() {
     
  
@@ -42,6 +44,8 @@
     } else {
         alert("Your browser does not support WebSockets.");
     }
+
+
 
     $( ".motPosition, .motSpeed" ).slider({
       orientation: "horizontal",
@@ -59,6 +63,11 @@
         return false;
     }
    
+    if (!isPortOpen) { 
+       conn.send("open "+portName+" 9600");
+       portOpen = true;
+    }
+
     conn.send("send "+portName+" "+id+" "+pos);
         
   }
