@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>NicoleSpace Editor</title>
+  <link rel="stylesheet" href="http://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+  <style>
+
+  #playlist {
+    position: absolute;
+    left: 450px;
+  }
+
+  .motorSlider {
+    clear: left;
+    width: 300px;
+    margin: 15px;
+  }
+
+  </style>
+
+  <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
+  <script>
+    var conn; //websocket connection to SPJS server
+ 
+  $( function() {
+    
+ 
+    //set up the websocket connection, to localhost for now, but could of course be on the network...
+    if (window["WebSocket"]) {
+        conn = new WebSocket("ws://localhost:8989/ws");
+        conn.onclose = function(evt) {
+            console.log("Connection closed.");
+        }
+        conn.onmessage = function(evt) {
+            //consider logging some or all?
+        }
+    } else {
+        alert("Your browser does not support WebSockets.");
+    }
+
+    $( ".motPosition, .motSpeed" ).slider({
+      orientation: "horizontal",
+      range: "min",
+      max: 255,
+      value: 127
+      /*slide: refreshSwatch,
+      change: refreshSwatch*/
+    });
+  } );
+
+
+  function sendMessage(id,pos) {
+    if (!conn) {
+        return false;
+    }
+   
+    conn.send("send /dev/tty.usbmodem1411 "+id+" "+pos);
+        
+  }
+
+
+  function motPos(motId) {
+    result = $("#m"+motId+"p").slider("value");
+    return result;
+  }
+
+  function sendAllMotorPositions() {
+    conn.send("send /dev/tty.usbmodem1411 64 "+motPos(1)+" 65 "+motPos(2)+" 66 "+motPos(3));
+  }
+
+  function addCurrentSettingToList() {
+    $("#movelist").append("<li>"+ $("#delayText").val()+" 64 "+motPos(1)+" 65 "+motPos(2)+" 66 "+motPos(3)+"</li>");
+  }
+
+  function executeData(lineData) {
+    commandString = "";
+    for (i=1; i<lineData.length; ++i) {
+      commandString+=lineData[i]+" ";
+    }
+    console.log("about to send: '"+ commandString +"'");
+    conn.send("send /dev/tty.usbmodem1411 "+commandString);
+  }
+
+  function playListItem(index) {
+    count = $("#movelist li").length;
+    if (index<count-1) {
+      lineData = $($("#movelist li")[index]).text().split(" ");
+      setTimeout( function () { console.log("Playing #"+index); executeData(lineData); playListItem(index+1); } , lineData[0]);
+
+
+
+    }
+
+  }
+
+  //call play list item on the first item, which would call subsequent items with the appropriate delay 
+  function playList() {
+    playListItem(0);
+  }
+
+  </script>
+
+</head>
+<body class="ui-widget-content" style="border:0;">
+ 
+<p class="ui-state-default ui-corner-all ui-helper-clearfix" style="padding:4px;">
+  <span class="ui-icon ui-icon-pencil" style="float:left; margin:-2px 5px 0 0;"></span>
+  Nicole Space
+</p>
+ 
+ <div id="playlist">
+  <ol id="movelist">
+  </ol>
+ </div>
+
+ Motor 1<br>
+ <div>
+Position <div id="m1p" class="motorSlider motPosition"></div>
+Speed <div id="m1s" class="motorSlider motSpeed"></div>
+</div>
+  <br>
+  <br>
+ 
+ Motor 2<br>
+ <div>
+Position <div id="m2p" class="motorSlider motPosition"></div>
+Speed <div id="m2s" class="motorSlider motSpeed"></div>
+</div>
+  <br>
+  <br>
+
+
+ Motor 3<br>
+ <div>
+Position <div id="m3p" class="motorSlider motPosition"></div>
+Speed <div id="m3s" class="motorSlider motSpeed"></div>
+</div>
+  <br>
+  <br>
+  <button onclick="sendAllMotorPositions()" >test123</button>
+  <button onclick="sendMessage(0,0)" >All Zero</button>
+  <button onclick="sendMessage(0,50)" >All 50</button>
+  <button onclick="addCurrentSettingToList()"> + </button>
+  <input type="text" id="delayText" value="1500"/>
+  <button onclick="playList()"> |&gt; </button>
+
+</body>
+</html>
