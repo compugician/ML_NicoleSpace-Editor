@@ -25,7 +25,8 @@
 
   <script>
     var conn; //websocket connection to SPJS server
- 
+    var portName = "/dev/tty.usbmodem1421";
+
   $( function() {
     
  
@@ -58,7 +59,7 @@
         return false;
     }
    
-    conn.send("send /dev/tty.usbmodem1411 "+id+" "+pos);
+    conn.send("send "+portName+" "+id+" "+pos);
         
   }
 
@@ -69,7 +70,7 @@
   }
 
   function sendAllMotorPositions() {
-    conn.send("send /dev/tty.usbmodem1411 64 "+motPos(1)+" 65 "+motPos(2)+" 66 "+motPos(3));
+    conn.send("send "+portName+" 64 "+motPos(1)+" 65 "+motPos(2)+" 66 "+motPos(3));
   }
 
   function addCurrentSettingToList() {
@@ -82,7 +83,7 @@
       commandString+=lineData[i]+" ";
     }
     console.log("about to send: '"+ commandString +"'");
-    conn.send("send /dev/tty.usbmodem1411 "+commandString);
+    conn.send("send "+portName+" "+commandString);
   }
 
   function playListItem(index) {
