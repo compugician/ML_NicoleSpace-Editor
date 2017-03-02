@@ -1,4 +1,5 @@
 Place ATtiny on breadboard with the right connections for Arduino to program it
+On line 78, change   setupUSI_I2C(0x42); for the number that the attiny needs to have (different that others to follow the sequence)
 Select board attiny 84
 Select 8mz internal
 Select Port
