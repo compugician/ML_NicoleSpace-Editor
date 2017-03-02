@@ -1,1 +1,6 @@
-
+Place ATtiny on breadboard with the right connections for Arduino to program it
+Select board attiny 84
+Select 8mz internal
+Select Port
+Select Arduino as ISP
+Upload code
