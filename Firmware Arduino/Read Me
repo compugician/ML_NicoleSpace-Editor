@@ -1,1 +1,6 @@
-
+Connect Arduino
+This code includes Wire.h, we need to change the Bus Speed from 100khz to 400khz
+To do this, need to go to Wire/src/utility/twi.h
+Open twi.h with Atom 
+In line 28 replace #define TWI_FREQ 100000L with #define TWI_FREQ 400000L and Save
+Upload Arduino Code
